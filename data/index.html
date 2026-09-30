@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algae Air Purifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="alertbar" id="alertbar" hidden></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" id="healthDot"></span>
+    <div>
+      <h1>Algae Air Purifier</h1>
+      <p class="tag">Chamber 01 &middot; live monitor</p>
+    </div>
+  </div>
+  <div class="conn">
+    <span id="wsState" class="pill pill-off">connecting&hellip;</span>
+    <span id="clock" class="clock">--:--:--</span>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-primary">
+      <p class="label">water temperature</p>
+      <p class="bignum"><span id="temp">--</span><span class="unit">&deg;C</span></p>
+      <p class="sub" id="tempNote">waiting for first reading</p>
+    </div>
+    <div class="hero-swatch">
+      <div class="swatch" id="colorSwatch"></div>
+      <div>
+        <p class="label">algae condition</p>
+        <p class="status-word" id="healthWord">--</p>
+        <p class="sub" id="healthDetail">green ratio -- &middot; saturation --</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+
+    <article class="card card-light">
+      <h2>Light</h2>
+      <div class="row">
+        <div>
+          <p class="label">sensor reading</p>
+          <p class="num" id="lux">-- lx</p>
+        </div>
+        <div>
+          <p class="label">grow LED</p>
+          <p class="num"><span id="ledState">--</span></p>
+        </div>
+      </div>
+      <div class="progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="lightProgress" style="width:0%"></div>
+        </div>
+        <p class="sub"><span id="sunHours">0.0</span>h natural + <span id="ledHours">0.0</span>h LED of <span id="targetHours">16</span>h target</p>
+      </div>
+    </article>
+
+    <article class="card card-cooling">
+      <h2>Cooling</h2>
+      <p class="label">peltier + heatsink fan (shared MOSFET)</p>
+      <p class="status-word" id="coolState">--</p>
+      <p class="sub">on above 35&deg;C, off at/below 30&deg;C</p>
+    </article>
+
+  </section>
+
+  <section class="card card-chart">
+    <h2>Temperature over time</h2>
+    <canvas id="tempChart" height="90"></canvas>
+  </section>
+
+</main>
+
+<footer>
+  <p>Off-grid solar &rarr; battery &rarr; 12V/5V/3.3V rails, with grid backup. Data resets on device reboot beyond the on-chip history buffer.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
