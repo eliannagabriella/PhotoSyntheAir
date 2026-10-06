@@ -1,12 +1,10 @@
-# Algae Air Purifier — ESP32-S3 firmware + wiring guide
+# Algae Air Purifier — ESP32-S3 firmware & wiring guide
 
-Air path: MERV filter → activated carbon (1000 iodine) → Ocypus Gamma F12 intake fan → diaphragm pump (micro-bubble diffuser) → algae chamber (mini submersible pump circulates water) → ~27% headspace releases O₂.
+Air path: MERV filter U25 → activated carbon (1000 iodine) → Ocypus Gamma F12 intake fan → diaphragm pump (micro-bubble diffuser) → algae chamber (mini submersible pump circulates water) → ~27% headspace releases O₂.
 
-The ESP32-S3 doesn't touch the air path — it watches the algae (color, temperature, light) and runs the cooling loop, the grow light, and the dashboard/notifications.
+The ESP32-S3 doesn't touch the air path — it watches the algae (color, temperature, light) and runs the cooling loop, the grow light, and the dashboard also notifications.
 
-## 1. Bill of materials this guide adds
-
-Your part list already covers the "big" components. Two low-level things are missing from any MOSFET-based design and are added here:
+## 1. Bill of materials
 
 | Ref | Part | Where | Why |
 |---|---|---|---|
@@ -18,7 +16,7 @@ Your part list already covers the "big" components. Two low-level things are mis
 | D1 | 1N4007 (or SS34 Schottky) | Across heatsink fan +/- | Flyback diode — the fan is a small inductive DC motor; without a return path for its collapsing field current, every OFF transition puts a voltage spike on MOSFET1's drain. |
 | D2, D3, D4 | 1N4007 (optional but recommended) | Across ocypus fan, diaphragm pump, submersible pump | These are wired directly to the rail with no MOSFET, but they're still brushed/BLDC motors — a diode across each protects the 12V rail from switch-on/off spikes when the whole system powers up or a fuse/switch is toggled. |
 
-If your TCS34725 / BH1750 breakout boards are bare chips rather than Adafruit/GY-style modules, also add two 4.7 kΩ pull-ups from SDA and SCL to 3.3V. Almost every breakout board already has these onboard — check before adding a second set, since doubled-up pull-ups just waste a little current, but confirm rather than assume.
+If your TCS34725 / BH1750 breakout boards are bare chips rather than Adafruit/GY-style modules, also add two 4.7 kΩ pull-ups from SDA and SCL to 3.3V. Almost every breakout board already has these onboard, check before adding a second set, since doubled-up pull-ups just waste a little current, but confirm rather than assume.
 
 ## 2. Power architecture
 
@@ -28,7 +26,7 @@ flowchart LR
     CH --> BATT[(2x 3.7V battery)]
     BATT --> SU[Step-up XL6019 -> 12V 5A]
     BATT --> SD[Step-down XL4015 -> 3.3V]
-    GRID[PLN / grid, backup] -.-> SU
+    GRID[State Electricity Power / grid, backup] -.-> SU
 
     SU --> M1[Ocypus F12 fan - always on]
     SU --> M2[Diaphragm pump - always on]
@@ -46,15 +44,15 @@ flowchart LR
     SD --> BH[BH1750]
 ```
 
-**Priority is physical, not firmware-controlled**: wire the solar panel into the charger's input, the charger's battery output into the XL6019/XL4015 inputs, and the grid/PLN supply into the same 12V bus through a diode-OR'd or manually-switched backup input, exactly as you already planned "off-grid first, battery second, grid last." That priority comes from how you wire the supplies together (e.g. a diode-OR or a physical/automatic transfer switch on the 12V bus) — it isn't something the ESP32-S3 arbitrates in software.
+**Priority is physical, not firmware-controlled**: wire the solar panel into the charger's input, the charger's battery output into the XL6019 & XL4015 inputs, and the grid/State Electricity Company supply into the same 12V bus through a diode or manually switched backup input. That priority comes from how you wire the supplies together (e.g. a diode-OR or a physical/automatic transfer switch on the 12V bus) — it isn't something the ESP32-S3 arbitrates in software.
 
-Tie **all grounds together** — battery/12V rail GND, 5V rail GND, 3.3V rail GND, ESP32-S3 GND, and both MOSFET sources. If the ESP32-S3 and the sensors don't share a ground reference with the loads, the MOSFET gate signal has no reliable 0V reference and behaves erratically.
+Tie **all grounds together** : battery/12V rail GND, 5V rail GND, 3.3V rail GND, ESP32-S3 GND, and both MOSFET sources. If the ESP32-S3 and the sensors don't share a ground reference with the loads, the MOSFET gate signal has no reliable 0V reference and behaves erratically.
 
-Power the ESP32-S3 board itself from the LM2596S's 5V/3A output (into its `5V`/`VIN` pin) — it has plenty of headroom left over for the ~0.6A LED plus the ESP32-S3's ~500mA peak. Don't back-power it from the XL4015 3.3V rail unless your specific ESP32-S3 board exposes a raw `3V3` pin meant for external supply (most do; check your board's silkscreen/pinout before relying on it).
+Power the ESP32-S3 board itself from the LM2596S's 5V/3A output (into its `5V`/`VIN` pin), it has plenty of headroom left over for the ~0.6A LED plus the ESP32-S3's ~500mA peak. Don't back power it from the XL4015 3.3V rail unless your specific ESP32-S3 board exposes a raw `3V3` pin meant for external supply (most do; check your board's pinout before relying on it).
 
 ## 3. MOSFET1 — Peltier + heatsink fan, ONE MOSFET, wired to switch together
 
-Because you want a single MOSFET to switch both loads at once, wire the peltier and the heatsink fan **in parallel**, both between the shared drain node and the 12V rail, so one gate signal switches both:
+Wire the peltier and the heatsink fan **in parallel**, both between the shared drain node and the 12V rail, so one gate signal switches both:
 
 | From | To |
 |---|---|
@@ -70,8 +68,7 @@ Because you want a single MOSFET to switch both loads at once, wire the peltier 
 
 Notes:
 - IRLB8721 is a **logic-level** MOSFET (fully on around 4.5V Vgs), so driving it straight from a 3.3V GPIO (through R2) is fine — no gate driver IC needed.
-- The peltier alone can pull ~5A; make sure MOSFET1 has a small heatsink/clip if it runs long stretches at that current, and use wire gauge rated for 5A+ on the drain/source path.
-- This is a **digital on/off** signal (`PIN_MOSFET_COOLING`), not PWM — the firmware just holds it HIGH while cooling and LOW otherwise.
+- The peltier alone can pull ~5A; make sure MOSFET1 has a small heatsink if it runs long stretches at that current, and use wire gauge rated for 5A+ on the drain/source path.
 
 ## 4. MOSFET2 — Grow LED brightness (PWM)
 
@@ -82,8 +79,6 @@ Notes:
 | MOSFET2 Source | Common GND |
 | MOSFET2 Gate | R4 (220 Ω) → ESP32-S3 GPIO6 |
 | MOSFET2 Gate | R5 (10 kΩ) → Common GND (pull-down) |
-
-GPIO6 runs a 5 kHz PWM signal (ESP32 LEDC peripheral) so the LED's *apparent* brightness is adjustable from the dashboard, independent of the LM2596S's fixed 5V/3A output — the MOSFET does the dimming by rapidly chopping the LED's ground return.
 
 ## 5. Sensors
 
@@ -101,9 +96,9 @@ GPIO6 runs a 5 kHz PWM signal (ESP32 LEDC peripheral) so the LED's *apparent* br
 | | GND (black) | Common GND | |
 | | DATA (yellow) | GPIO4 | **needs R1, 4.7 kΩ, DATA→3.3V** |
 
-## 6. Always-on motors (no MOSFET, per your design)
+## 6. Always-on motors 
 
-Ocypus Gamma F12 fan, diaphragm pump, and mini submersible pump are wired **straight to the 12V rail** with no ESP32 control — the firmware only *reports* them as always-on for the dashboard. If you later want the diaphragm pump's micro-bubble PWM behavior you mentioned, that needs its own low-side MOSFET (identical pattern to MOSFET1/2) driven by another PWM-capable GPIO (e.g. GPIO7) — let me know if you want that added, since right now the pump just runs continuously at fixed speed.
+Ocypus Gamma F12 fan, diaphragm pump, and mini submersible pump are wired **straight to the 12V rail** with no ESP32 control.
 
 ## 7. Firmware setup
 
@@ -123,10 +118,3 @@ Ocypus Gamma F12 fan, diaphragm pump, and mini submersible pump are wired **stra
 4. Reflash; you'll get a message the first time the algae turns pale, and weekly when nutrients are due.
 
 The website also asks the browser for notification permission and will pop an in-browser notification for the same two events whenever the dashboard tab is open — Telegram is the one that reaches your phone even when the site is closed.
-
-## 8. Things worth knowing / limitations
-
-- The temperature history feeding the chart lives in RAM (last ~200 samples, one every 30s ≈ 100 minutes) and resets on reboot. If you want it to survive power loss or cover longer spans, the next step is logging to LittleFS as CSV or pushing to something like InfluxDB — say the word if you want that added.
-- `lastNutrientEpoch` and the LED brightness percentage *do* persist across reboots (stored in NVS via `Preferences`).
-- Daylight/LED-hour accounting and the weekly nutrient timer depend on NTP time sync at boot; if your network has no internet access at boot, retry logic keeps trying in the background but the day-boundary reset and reminder will be delayed until it succeeds.
-- Health thresholds (`ALGAE_GREEN_RATIO_MIN`, `ALGAE_SATURATION_MIN`) and the daylight lux threshold are starting points, not calibrated values — they need a short calibration pass against your actual algae and chamber lighting.
