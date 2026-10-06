@@ -2,7 +2,7 @@
 
 Air path: MERV filter U25 → activated carbon (1000 iodine) → Ocypus Gamma F12 intake fan → diaphragm pump (micro-bubble diffuser) → algae chamber (mini submersible pump circulates water) → ~27% headspace releases O₂.
 
-The ESP32-S3 doesn't touch the air path — it watches the algae (color, temperature, light) and runs the cooling loop, the grow light, and the dashboard also notifications.
+The ESP32-S3 doesn't touch the air path, it watches the algae (color, temperature, light) and runs the cooling loop, the grow light, and the dashboard also notifications.
 
 ## 1. Bill of materials
 
@@ -44,13 +44,13 @@ flowchart LR
     SD --> BH[BH1750]
 ```
 
-**Priority is physical, not firmware-controlled**: wire the solar panel into the charger's input, the charger's battery output into the XL6019 & XL4015 inputs, and the grid/State Electricity Company supply into the same 12V bus through a diode or manually switched backup input. That priority comes from how you wire the supplies together (e.g. a diode-OR or a physical/automatic transfer switch on the 12V bus) — it isn't something the ESP32-S3 arbitrates in software.
+**Priority is physical, not firmware-controlled** : wire the solar panel into the charger's input, the charger's battery output into the XL6019 & XL4015 inputs, and the grid/State Electricity Company supply into the same 12V bus through a diode or manually switched backup input. That priority comes from how you wire the supplies together (e.g. a diode-OR or a physical/automatic transfer switch on the 12V bus) — it isn't something the ESP32-S3 arbitrates in software.
 
 Tie **all grounds together** : battery/12V rail GND, 5V rail GND, 3.3V rail GND, ESP32-S3 GND, and both MOSFET sources. If the ESP32-S3 and the sensors don't share a ground reference with the loads, the MOSFET gate signal has no reliable 0V reference and behaves erratically.
 
 Power the ESP32-S3 board itself from the LM2596S's 5V/3A output (into its `5V`/`VIN` pin), it has plenty of headroom left over for the ~0.6A LED plus the ESP32-S3's ~500mA peak. Don't back power it from the XL4015 3.3V rail unless your specific ESP32-S3 board exposes a raw `3V3` pin meant for external supply (most do; check your board's pinout before relying on it).
 
-## 3. MOSFET1 — Peltier + heatsink fan, ONE MOSFET, wired to switch together
+## 3. MOSFET1 : Peltier + heatsink fan, ONE MOSFET, wired to switch together
 
 Wire the peltier and the heatsink fan **in parallel**, both between the shared drain node and the 12V rail, so one gate signal switches both:
 
@@ -67,10 +67,10 @@ Wire the peltier and the heatsink fan **in parallel**, both between the shared d
 | MOSFET1 Gate | R3 (10 kΩ) → Common GND (pull-down) |
 
 Notes:
-- IRLB8721 is a **logic-level** MOSFET (fully on around 4.5V Vgs), so driving it straight from a 3.3V GPIO (through R2) is fine — no gate driver IC needed.
+- IRLB8721 is a **logic-level** MOSFET (fully on around 4.5V Vgs), so driving it straight from a 3.3V GPIO (through R2) is fine, no gate driver IC needed.
 - The peltier alone can pull ~5A; make sure MOSFET1 has a small heatsink if it runs long stretches at that current, and use wire gauge rated for 5A+ on the drain/source path.
 
-## 4. MOSFET2 — Grow LED brightness (PWM)
+## 4. MOSFET2 : Grow LED brightness (PWM)
 
 | From | To |
 |---|---|
