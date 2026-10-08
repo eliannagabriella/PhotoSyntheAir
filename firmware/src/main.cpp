@@ -1,24 +1,3 @@
-// ============================================================================
-//  Algae Air Purifier — ESP32-S3 firmware
-//
-//  Air path (physical, no firmware control needed):
-//    MERV filter -> activated carbon (1000 iodine) -> Ocypus Gamma F12 fan
-//    -> diaphragm air pump (PWM-bubbled diffuser) -> algae chamber
-//    (mini submersible pump keeps water circulating) -> O2 headspace (~27%)
-//
-//  Firmware responsibilities:
-//    - Read TCS34725 (algae color / health), DS18B20 (water temp), BH1750 (lux)
-//    - Hysteresis control of ONE MOSFET driving Peltier + heatsink fan together
-//    - PWM control of a SECOND MOSFET driving the HPL 3W grow LED
-//    - Serve a realtime dashboard (LittleFS + WebSocket)
-//    - Push Telegram phone notifications on unhealthy algae / weekly nutrients
-//
-//  NOTE: Ocypus fan, diaphragm pump and mini submersible pump are wired
-//  directly to the 12V rail (per the design brief) and are NOT switched by
-//  the ESP32 — they simply run whenever the system has power. The firmware
-//  still reports them as "always on" on the dashboard for completeness.
-// ============================================================================
-
 #include <Arduino.h>
 #include <WiFi.h>
 #include <Wire.h>
@@ -34,10 +13,8 @@
 #include <Adafruit_TCS34725.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-
 #include "app_config.h"
 
-// ---------------------------------------------------------------- Globals --
 OneWire oneWire(PIN_ONEWIRE_DATA);
 DallasTemperature ds18b20(&oneWire);
 
@@ -59,7 +36,7 @@ struct HistoryPoint {
 };
 HistoryPoint history[HISTORY_MAX_POINTS];
 int historyCount = 0;
-int historyHead  = 0; // circular buffer write index
+int historyHead  = 0; 
 
 struct SystemState {
   float waterTemp        = NAN;
@@ -81,18 +58,13 @@ struct SystemState {
   bool nutrientDue        = false;
   bool wifiConnected      = false;
   bool timeSynced         = false;
-
-  // Always-on subsystems (not switched by firmware, reported for the dashboard)
-  // const bool ocypusFanOn        = true;
-  // const bool diaphragmPumpOn    = true;
-  // const bool submersiblePumpOn  = true;
 } state;
 
 unsigned long lastLoopMs    = 0;
 unsigned long lastHistoryMs = 0;
 bool wasHealthyLastCheck    = true;
 
-// ------------------------------------------------------------ Prototypes --
+//Prototypes
 void connectWiFi();
 void syncTime();
 void setupSensors();
@@ -110,7 +82,7 @@ String buildHistoryJson();
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
                AwsEventType type, void *arg, uint8_t *data, size_t len);
 
-// =============================================================================
+
 void setup() {
   Serial.begin(115200);
   delay(300);
@@ -143,7 +115,6 @@ void setup() {
   Serial.println("[algae] ready.");
 }
 
-// =============================================================================
 void loop() {
   ws.cleanupClients();
 
@@ -153,7 +124,7 @@ void loop() {
     lastLoopMs = now;
 
     state.wifiConnected = (WiFi.status() == WL_CONNECTED);
-    digitalWrite(PIN_STATUS_LED, (millis() / 500) % 2); // heartbeat blink
+    digitalWrite(PIN_STATUS_LED, (millis() / 500) % 2);
 
     readSensors(dt);
     maybeResetDailyCounters();
@@ -169,7 +140,7 @@ void loop() {
   }
 }
 
-// ------------------------------------------------------------------ WiFi --
+//WiFi
 void connectWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -199,7 +170,7 @@ void syncTime() {
   }
 }
 
-// ---------------------------------------------------------------- Sensors --
+//Sensors
 void setupSensors() {
   ds18b20.begin();
   ds18b20.setWaitForConversion(true);
@@ -214,14 +185,14 @@ void setupSensors() {
 }
 
 void readSensors(float dtSeconds) {
-  // --- Temperature ---
+  //Temperature
   ds18b20.requestTemperatures();
   float t = ds18b20.getTempCByIndex(0);
   if (t > -100 && t < 125) { // DEVICE_DISCONNECTED_C guard
     state.waterTemp = t;
   }
 
-  // --- Color / algae health ---
+  //Algae health by color
   uint16_t r, g, b, c;
   tcs.getRawData(&r, &g, &b, &c);
   state.rawR = r; state.rawG = g; state.rawB = b; state.rawC = c;
@@ -252,7 +223,7 @@ void readSensors(float dtSeconds) {
   if (l >= 0) state.lux = l;
 }
 
-// -------------------------------------------------------- Cooling control --
+//Cooling control
 void controlCooling() {
   if (isnan(state.waterTemp)) return; // don't act on a bad reading
 
@@ -265,7 +236,7 @@ void controlCooling() {
   digitalWrite(PIN_MOSFET_COOLING, state.coolingOn ? HIGH : LOW);
 }
 
-// ----------------------------------------------------------- Light control --
+//Light control
 void controlGrowLight(float dtSeconds) {
   bool isDaylight = state.lux >= DAYLIGHT_LUX_THRESHOLD;
 
@@ -300,7 +271,7 @@ void maybeResetDailyCounters() {
   }
 }
 
-// ------------------------------------------------------- Nutrient reminder --
+//Nutrient reminder
 void maybeCheckNutrientReminder() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo, 5)) return;
@@ -327,7 +298,7 @@ void maybeCheckNutrientReminder() {
   state.nutrientDue = due;
 }
 
-// -------------------------------------------------------------- History ---
+//History
 void pushHistoryPoint() {
   time_t nowEpoch;
   time(&nowEpoch);
@@ -356,7 +327,7 @@ String buildHistoryJson() {
   return out;
 }
 
-// ---------------------------------------------------------------- Telegram --
+//Telegram
 void sendTelegramMessage(const String &text) {
   if (!TELEGRAM_ENABLED) return;
   if (WiFi.status() != WL_CONNECTED) return;
@@ -381,7 +352,7 @@ void sendTelegramMessage(const String &text) {
   }
 }
 
-// -------------------------------------------------------------- Web/State --
+//Web/State
 String buildStateJson() {
   JsonDocument doc;
   if (isnan(state.waterTemp)) {
