@@ -1,3 +1,5 @@
+![Description of image](assets/banner.png)
+
 # Algae Air Purifier — ESP32-S3 firmware & wiring guide
 
 Air path: MERV filter U25 → activated carbon (1000 iodine) → Ocypus Gamma F12 intake fan → diaphragm pump (micro-bubble diffuser) → algae chamber (mini submersible pump circulates water) → ~27% headspace releases O₂.
