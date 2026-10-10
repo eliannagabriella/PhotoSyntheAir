@@ -1,0 +1,20 @@
+Type,Item Name,Qty,Function
+ESP32-S3,ESP32-S3 Microcontroller ,1,"Acts as the main controller, processing sensor data and controlling the system."
+DS18B20,Waterproof temperature sensor ,1,Measures the temperature of the algae culture.
+BH1750,Sensor intensitas cahaya,1,Measures light intensity around the algae chamber.
+IRLB8271,MOSFET,2,Switches the power to the pump and other high-current components under ESP32 control.
+12V DC,Diaphragm air pump,1,Pumps air into the algae chamber to support gas exchange.
+F12 BK,Ocypus Gamma Fan Case,1,Pulls air through the filtration system.
+TCS34725,Sensor warna,1,Measures the algae culture's color to monitor changes in its condition.
+,LED HPL 3 Watt,1,Provides light for algae photosynthesis.
+2S 4A,Step Up Boost LiPo Charger Module,1,Charges the two-cell lithium-ion battery pack.
+LM2596S,LED Constant Current Driver 3 Watt,1,Regulates the current supplied to the 3 W LED.
+XL6019,Boost Converter 12V 5A,1,Increases the battery voltage to supply higher-voltage components.
+XL4005,Buck Converter 3.3V ,1,Reduces the input voltage to a lower voltage for suitable components.
+U25,MERV FILTER,1,Traps dust and other airborne particles.
+TEC-12706,Peltier kit (including heatsink and fan),1,Transfers heat to help control the temperature of the algae chamber.
+18650,Rechargeable Battery 2000mAh,2,Store electrical energy for the purifier.
+,Resistor 220Ω,2,Limit current in suitable electronic circuits.
+,Resistor 10kΩ,2,Act as pull-up or pull-down resistors for stable sensor or MOSFET signals.
+136X110-3,Solar Panel,1,Converts sunlight into electrical energy.
+1000 Iodine,Activated carbon,1,Adsorbs certain gases and volatile organic compounds (VOCs) from the air.
