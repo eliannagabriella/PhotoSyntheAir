@@ -1,11 +1,11 @@
 Type,Item Name,Qty,Function
 ESP32-S3,ESP32-S3 Microcontroller ,1,"Acts as the main controller, processing sensor data and controlling the system."
 DS18B20,Waterproof temperature sensor ,1,Measures the temperature of the algae culture.
-BH1750,Sensor intensitas cahaya,1,Measures light intensity around the algae chamber.
+BH1750,Light intensity sensor,1,Measures light intensity around the algae chamber.
 IRLB8271,MOSFET,2,Switches the power to the pump and other high-current components under ESP32 control.
 12V DC,Diaphragm air pump,1,Pumps air into the algae chamber to support gas exchange.
 F12 BK,Ocypus Gamma Fan Case,1,Pulls air through the filtration system.
-TCS34725,Sensor warna,1,Measures the algae culture's color to monitor changes in its condition.
+TCS34725,Color sensor,1,Measures the algae culture's color to monitor changes in its condition.
 ,LED HPL 3 Watt,1,Provides light for algae photosynthesis.
 2S 4A,Step Up Boost LiPo Charger Module,1,Charges the two-cell lithium-ion battery pack.
 LM2596S,LED Constant Current Driver 3 Watt,1,Regulates the current supplied to the 3 W LED.
