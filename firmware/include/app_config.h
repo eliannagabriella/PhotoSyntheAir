@@ -1,21 +1,17 @@
 #pragma once
-// ============================================================================
 //  config.h — every value you are likely to want to change lives here.
-// ============================================================================
-// ---------------------------------------------------------------- WiFi -----
-#define WIFI_SSID       "moon"
-#define WIFI_PASSWORD   "kosongtujuh"
 
-// ------------------------------------------------------------ Telegram ----
-// Phone notifications are sent through a Telegram bot (works even if nobody
-// has the website open). Create a bot with @BotFather, then message
-// @userinfobot to get your numeric chat id.
+// WiFi
+#define WIFI_SSID       "input your wifi ssid"
+#define WIFI_PASSWORD   "input your wifi password"
+
+// Telegram
 #define TELEGRAM_ENABLED     true
-#define TELEGRAM_BOT_TOKEN   "8929898243:AAE_l4kxrwc-241SJGGp3-cykEQA1mvfgDc"
-#define TELEGRAM_CHAT_ID     "6801556690"
+#define TELEGRAM_BOT_TOKEN   "input your tele bot token"
+#define TELEGRAM_CHAT_ID     "input your tele acc chat id"
 
-// ------------------------------------------------------------- Time -------
-// Bandung, Indonesia = UTC+7, no DST.
+// Time
+// Bandung, Indonesia = UTC+7
 #define GMT_OFFSET_SEC       (7 * 3600)
 #define DAYLIGHT_OFFSET_SEC  0
 #define NTP_SERVER_1         "pool.ntp.org"
