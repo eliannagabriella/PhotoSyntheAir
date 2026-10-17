@@ -6,14 +6,12 @@ A smart hybrid bio-mechanical system for advanced air remediation that tranfom p
 [Check out the demo vid!]()
 
 ## Features
-- Algae-Based Biological Air Treatment: Using microalgae to absorb CO₂ through photosynthesis and release oxygen.
-- Multi-Stage Air Filtration: Combinining MERV filter and activated carbon to capture airborne particles while removing gaseous pollutants.
-- ESP32-S3 Embedded Control System: Coordinating sensors, automated controls, and communication with the monitoring website.
-- Multi-Sensor Data Acquisition: Using TCS34725 color sensor to monitor algae color (health), DS18B20 water proof temperature sensor to measure algae temperature, and BH1750 light intesnity sensor to measure received sunlight for algae growth.
-- MOSFET-Based Actuator Switching: Using IRLB8721 N-channel MOSFET to control high-current (TEC-12706 Peltier Cooling Module)
-- Web Monitoring: Displaying sensor readings and system conditions on the website, alongside with alerts for potential algae health issues.
-- Temperature Regulation: Activating TEC-12706 Peltier Cooling Module and heatsink fan when the algae's temperature hits the configurreed threshold (in this case I set to 30 degree celcius)
-- Off-Grid Power Supply: Using solar panels and rechargable batteries as the primary power source.
+- **ESP32-S3 Embedded Control System**: Coordinating sensors, automated controls, and communication with the monitoring website.
+- **Multi-Sensor Data Acquisition**: Using TCS34725 color sensor to monitor algae color (health), DS18B20 water proof temperature sensor to measure algae temperature, and BH1750 light intesnity sensor to measure received sunlight for algae growth.
+- **MOSFET-Based Actuator Switching**: Using IRLB8721 N-channel MOSFET to control high-current (TEC-12706 Peltier Cooling Module)
+- **Web Monitoring**: Displaying sensor readings and system conditions on the website, alongside with alerts for potential algae health issues.
+- **Temperature Regulation**: Activating TEC-12706 Peltier Cooling Module and heatsink fan when the algae's temperature hits the configurreed threshold (in this case I set to 30 degree celcius)
+- **Off-Grid Power Supply**: Using solar panels and rechargable batteries as the primary power source.
 
 ## Background
 Air pollution has become a growing environmental and public health concern here in Bandung, Indonesia, driven by vehicle emissions, industrial activities, and rapid ubran development. Unlike coastal cities, Bandung is an inland city with no direct sea breeze to help disperse air pollutants and release oxygen. Knowing that microalgae can produce more oxygen per unit area than trees under certain conditions due to their rapid growth and photosynthetic efficiency, they offer a promising approach to complement conventional air purification methods. To address Bandung's air pollution, this project proposes an Algae-Based Smart Air Purifier that combines multi-stage filtration with microalgae to absorb CO₂ through photosynthesis. Integrated with an ESP32-S3 microcontroller, sensors, automated temperature and lighting controls, and website monitoring, the system aims to maintain suitable algae growth conditions. Powered primarily by solar energy, this project explores a sustainable approach to air treatment in urban Bandung.
